@@ -30,6 +30,7 @@ public class BeatBoxFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
 
         mBeatBox = new BeatBox(getActivity());
     }
@@ -46,12 +47,24 @@ public class BeatBoxFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mBeatBox.release();
+    }
+
     private class SoundHolder extends RecyclerView.ViewHolder {
         private ListItemSoundBinding mBinding;
 
         public SoundHolder(ListItemSoundBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
+            mBinding.setViewModel(new SoundViewModel(mBeatBox));
+        }
+
+        public void bind(Sound sound) {
+            mBinding.getViewModel().setSound(sound);
+            mBinding.executePendingBindings();
         }
     }
 
@@ -72,7 +85,8 @@ public class BeatBoxFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(SoundHolder holder, int position) {
-
+            Sound sound = mSounds.get(position);
+            holder.bind(sound);
         }
 
         @Override
